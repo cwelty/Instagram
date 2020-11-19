@@ -17,10 +17,10 @@ sleep 1
 #cp ../data/*.csv $folder/myDB/data
 
 #Initialize DB
-initdb
+/usr/lib/postgresql/12/bin/initdb
 
 sleep 1
 #Start folder
 export PGPORT=9998
-pg_ctl -o "-c unix_socket_directories=$PGSOCKETS -p $PGPORT" -D $PGDATA -l $folder/logfile start
+/usr/lib/postgresql/12/bin/pg_ctl -o "-c unix_socket_directories=$PGSOCKETS -p $PGPORT" -D $PGDATA -l $folder/logfile start
 
