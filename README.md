@@ -1,7 +1,7 @@
 # Instagram
 CS179G Group Project
 
-## Overview
+### Overview
 
 * Create a photo-sharing service like Instagram where users can upload photos to share them with other users
 * Designed for users to be able to share photos, follow other users, and view photos from their News Feed
@@ -11,7 +11,7 @@ CS179G Group Project
 * TODO
 
 
-### Getting started
+### Getting Started
 
 * Clone the repository
 * Navigate to the "postgresql" folder in your terminal
@@ -23,7 +23,7 @@ CS179G Group Project
 * Follow input guidelines on Menu to begin
 
 
-## Functionalities
+### Functionalities
 
 * Users can upload/download/view photos
 * Users can perform searches for other users based on photo titles, tags, ratings, etc.
@@ -37,7 +37,7 @@ CS179G Group Project
 * Most popular photos and users are listed
 
 
-## Demo
+### Demo
 
 * TODO
 
