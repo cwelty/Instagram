@@ -30,12 +30,12 @@ import java.util.ArrayList;
  *
  */
 
-public class Ticketmaster{
+public class Instagram{
 	//reference to physical database connection
 	private Connection _connection = null;
 	static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	
-	public Ticketmaster(String dbname, String dbport, String user, String passwd) throws SQLException {
+	public Instagram(String dbname, String dbport, String user, String passwd) throws SQLException {
 		System.out.print("Connecting to database...");
 		try{
 			// constructs the connection URL
@@ -214,12 +214,12 @@ public class Ticketmaster{
 	public static void main (String[] args) {
 		if (args.length != 3) {
 			System.err.println (
-				"Usage: " + "java [-classpath <classpath>] " + Ticketmaster.class.getName () +
+				"Usage: " + "java [-classpath <classpath>] " + Instagram.class.getName () +
 		            " <dbname> <port> <user>");
 			return;
 		}//end if
 		
-		Ticketmaster esql = null;
+		Instagram esql = null;
 		
 		try{
 			System.out.println("(1)");
@@ -238,47 +238,41 @@ public class Ticketmaster{
 			String dbport = args[1];
 			String user = args[2];
 			
-			esql = new Ticketmaster (dbname, dbport, user, "");
+			esql = new Instagram (dbname, dbport, user, "");
 			
 			boolean keepon = true;
 			while(keepon){
 				System.out.println("MAIN MENU");
 				System.out.println("---------");
-				System.out.println("1. Add User");
-				System.out.println("2. Add Booking");
-				System.out.println("3. Add Movie Showing for an Existing Theater");
-				System.out.println("4. Cancel Pending Bookings");
-				System.out.println("5. Change Seats Reserved for a Booking");
-				System.out.println("6. Remove a Payment");
-				System.out.println("7. Clear Cancelled Bookings");
-				System.out.println("8. Remove Shows on a Given Date");
-				System.out.println("9. List all Theaters in a Cinema Playing a Given Show");
-				System.out.println("10. List all Shows that Start at a Given Time and Date");
-				System.out.println("11. List Movie Titles Containing \"love\" Released After 2010");
-				System.out.println("12. List the First Name, Last Name, and Email of Users with a Pending Booking");
-				System.out.println("13. List the Title, Duration, Date, and Time of Shows Playing a Given Movie at a Given Cinema During a Date Range");
-				System.out.println("14. List the Movie Title, Show Date & Start Time, Theater Name, and Cinema Seat Number for all Bookings of a Given User");
-				System.out.println("15. EXIT");
+				System.out.println("1. Upload Photo");
+				System.out.println("2. Download Photo");
+				System.out.println("3. Search for User"); // based on titles, tags, ratings
+				System.out.println("4. Follow User"); 
+				System.out.println("5. Generate News Feed");
+				System.out.println("6. Tag Photo");
+				System.out.println("7. Search for Photos"); // on tags, ratings, dates, or publishing users
+				System.out.println("8. Comment on Photo");
+				System.out.println("9. Tag User to Photo");
+				System.out.println("10. Most Popular Users"); // All time not only User's followers
+				System.out.println("11. Most Popular Photos"); // All time not only User's follower's posts
+				System.out.println("12. EXIT");
 				
 				/*
 				 * FOLLOW THE SPECIFICATION IN THE PROJECT DESCRIPTION
 				 */
 				switch (readChoice()){
-					case 1: AddUser(esql); break;
-					case 2: AddBooking(esql); break;
-					case 3: AddMovieShowingToTheater(esql); break;
-					case 4: CancelPendingBookings(esql); break;
-					case 5: ChangeSeatsForBooking(esql); break;
-					case 6: RemovePayment(esql); break;
-					case 7: ClearCancelledBookings(esql); break;
-					case 8: RemoveShowsOnDate(esql); break;
-					case 9: ListTheatersPlayingShow(esql); break;
-					case 10: ListShowsStartingOnTimeAndDate(esql); break;
-					case 11: ListMovieTitlesContainingLoveReleasedAfter2010(esql); break;
-					case 12: ListUsersWithPendingBooking(esql); break;
-					case 13: ListMovieAndShowInfoAtCinemaInDateRange(esql); break;
-					case 14: ListBookingInfoForUser(esql); break;
-					case 15: keepon = false; break;
+					case 1: UploadPhoto(esql); break;
+					case 2: DownloadPhoto(esql); break;
+					case 3: SearchForUser(esql); break;
+					case 4: FollowUser(esql); break;
+					case 5: GenerateNewsFeed(esql); break;
+					case 6: TagPhoto(esql); break;
+					case 7: SearchForPhotos(esql); break;
+					case 8: CommentOnPhoto(esql); break;
+					case 9: TagUserToPhoto(esql); break;
+					case 10: MostPopularUsers(esql); break;
+					case 11: MostPopularPhotos(esql); break;
+					case 12: keepon = false; break;
 				}
 			}
 		}catch(Exception e){
@@ -310,66 +304,51 @@ public class Ticketmaster{
 			}//end try
 		}while (true);
 		return input;
-	}//end readChoice
-	
-	public static void AddUser(Ticketmaster esql){//1
+	}//end readChoice3
+
+	public static void UploadPhoto(Instagram esql){//1
 		
 	}
 	
-	public static void AddBooking(Ticketmaster esql){//2
+	public static void DownloadPhoto(Instagram esql){//2
 		
 	}
 	
-	public static void AddMovieShowingToTheater(Ticketmaster esql){//3
+	public static void SearchForUser(Instagram esql){//3
 		
 	}
 	
-	public static void CancelPendingBookings(Ticketmaster esql){//4
+	public static void FollowUser(Instagram esql){//4
 		
 	}
 	
-	public static void ChangeSeatsForBooking(Ticketmaster esql) throws Exception{//5
+	public static void GenerateNewsFeed(Instagram esql) throws Exception{//5
 		
 	}
 	
-	public static void RemovePayment(Ticketmaster esql){//6
+	public static void TagPhoto(Instagram esql){//6
 		
 	}
 	
-	public static void ClearCancelledBookings(Ticketmaster esql){//7
+	public static void SearchForPhotos(Instagram esql){//7
 		
 	}
 	
-	public static void RemoveShowsOnDate(Ticketmaster esql){//8
+	public static void CommentOnPhoto(Instagram esql){//8
 		
 	}
 	
-	public static void ListTheatersPlayingShow(Ticketmaster esql){//9
+	public static void TagUserToPhoto(Instagram esql){//9
 		//
 		
 	}
 	
-	public static void ListShowsStartingOnTimeAndDate(Ticketmaster esql){//10
+	public static void MostPopularUsers(Instagram esql){//10
 		//
 		
 	}
 
-	public static void ListMovieTitlesContainingLoveReleasedAfter2010(Ticketmaster esql){//11
-		//
-		
-	}
-
-	public static void ListUsersWithPendingBooking(Ticketmaster esql){//12
-		//
-		
-	}
-
-	public static void ListMovieAndShowInfoAtCinemaInDateRange(Ticketmaster esql){//13
-		//
-		
-	}
-
-	public static void ListBookingInfoForUser(Ticketmaster esql){//14
+	public static void MostPopularPhotos(Instagram esql){//11
 		//
 		
 	}
