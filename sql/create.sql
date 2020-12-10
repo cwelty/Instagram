@@ -8,17 +8,19 @@ DROP TABLE IF EXISTS Tag;
 
 CREATE TABLE Photo (
     photo_id VARCHAR(64) NOT NULL,
+    parent_id VARCHAR(64) NOT NULL,
+    user_id VARCHAR(64) NOT NULL,
     title VARCHAR(64) NOT NULL,
-    tags VARCHAR(64) NOT NULL,
     ratings NUMERIC(5) NOT NULL,
     dates VARCHAR(20) NOT NULL,
-    time NUMERIC(4) NOT NULL,
+    timer NUMERIC(4) NOT NULL,
     PRIMARY KEY(photo_id)
 );
 
 CREATE TABLE Comments (
     comment_id VARCHAR(64) NOT NULL,
     content VARCHAR(1000) NOT NULL,
+    parent_id VARCHAR(64) NOT NULL,
     PRIMARY KEY(comment_id)
 );
 
@@ -31,11 +33,14 @@ CREATE TABLE Users (
 CREATE TABLE Rating (
     rating_id VARCHAR(64) NOT NULL,
     rating_type VARCHAR(64) NOT NULL,
+    parent_id VARCHAR(64) NOT NULL,
     PRIMARY KEY(rating_id)
 );
 
 CREATE TABLE Tag (
     tag_id VARCHAR(64) NOT NULL,
+    tag VARCHAR(64) NOT NULL,
+    parent_id VARCHAR(64) NOT NULL,
     PRIMARY KEY(tag_id)
 );
 
@@ -46,43 +51,46 @@ CREATE TABLE Tag (
 -- INSERT DATA STATEMENTS --
 ----------------------------
 
-
-/*
 COPY Photo (
 	photo_id,
+    parent_id,
+    user_id,
 	title,
 	tags,
 	ratings,
 	dates,
-	time
+	timer
 )
-FROM 'Photos.csv'
+--FROM 'Photos.csv'
 WITH DELIMITER ',';
 
 COPY Comments (
 	comment_id,
-	content
+	content,
+    parent_id
 )
-FROM 'Content.csv'
+--FROM 'Content.csv'
 WITH DELIMITER ',';
 
 COPY Users (
 	user_id,
 	password
 )
-FROM 'Users.csv'
+--FROM 'Users.csv'
 WITH DELIMITER ',';
 
 COPY Rating (
 	rating_id,
-	rating_type
+	rating_type,
+    parent_id
 )
-FROM 'Rating.csv'
+--FROM 'Rating.csv'
 WITH DELIMITER ',';
 
 COPY Tag  (
-	tag_id
+	tag_id,
+    tag,
+    parent_id
 )
-FROM 'Tag.csv'
+--FROM 'Tag.csv'
 WITH DELIMITER ',';
-*/
