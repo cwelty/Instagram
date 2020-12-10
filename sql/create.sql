@@ -52,43 +52,43 @@ CREATE TABLE Tag (
 ----------------------------
 
 COPY Photo (
-	photo_id,
+    photo_id,
     parent_id,
     user_id,
-	title,
-	tags,
-	ratings,
-	dates,
-	timer
+    title,
+    tags,
+    ratings,
+    dates,
+    timer
 )
 --FROM 'Photos.csv'
 WITH DELIMITER ',';
 
 COPY Comments (
-	comment_id,
-	content,
+    comment_id,
+    content,
     parent_id
 )
---FROM 'Content.csv'
+FROM 'Conmments.csv'
 WITH DELIMITER ',';
 
 COPY Users (
-	user_id,
-	password
+    user_id,
+    password
 )
 --FROM 'Users.csv'
 WITH DELIMITER ',';
 
 COPY Rating (
-	rating_id,
-	rating_type,
+    rating_id,
+    rating_type,
     parent_id
 )
 --FROM 'Rating.csv'
 WITH DELIMITER ',';
 
 COPY Tag  (
-	tag_id,
+    tag_id,
     tag,
     parent_id
 )
