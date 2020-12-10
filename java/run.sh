@@ -4,4 +4,4 @@ PORT=$2
 USER=$3
 
 # Example: source ./run.sh flightDB 5432 user
-java -cp lib/*:bin/ Ticketmaster $DBNAME $PORT $USER
+java -cp lib/*:bin/ Instagram $DBNAME $PORT $USER

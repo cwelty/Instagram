@@ -51,6 +51,7 @@ CREATE TABLE Tag (
 -- INSERT DATA STATEMENTS --
 ----------------------------
 
+/*
 COPY Photo (
     photo_id,
     parent_id,
@@ -63,15 +64,15 @@ COPY Photo (
 )
 --FROM 'Photos.csv'
 WITH DELIMITER ',';
-
+*/
 COPY Comments (
     comment_id,
     content,
     parent_id
 )
-FROM 'Conmments.csv'
+FROM 'Comments.csv'
 WITH DELIMITER ',';
-
+/*
 COPY Users (
     user_id,
     password
@@ -94,3 +95,4 @@ COPY Tag  (
 )
 --FROM 'Tag.csv'
 WITH DELIMITER ',';
+*/
