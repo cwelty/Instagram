@@ -241,6 +241,7 @@ public class Instagram{
 			Scanner input = new Scanner(System.in);
 			String value;
 			String tag;
+			String user_id;
 			int parent_id;
 			
 			boolean keepon = true;
@@ -328,7 +329,17 @@ public class Instagram{
 						parent_id = Integer.parseInt(value);
 						System.out.print("\nPlease enter the photo tag you would like to add:\n");
 						tag = input.nextLine();
-						TagPhoto(esql, parent_id, tag);
+
+						if (ParentExists(esql, parent_id)) {
+							if (!PhotoTagExists(esql, parent_id, tag)) {
+								TagPhoto(esql, parent_id, tag);
+							} else {
+								System.out.println("Tag \'" + tag + "\' already exists on this photo. Returning to menu.\n");
+							}
+						} else {
+							System.out.println("\nInvalid photo ID. Returning to menu.\n");
+						}
+						 //ViewPhotoTags(esql, parent_id); // FIXME REMOVE
 					break;
 					
 					case 7: //SearchForPhotos
@@ -363,7 +374,7 @@ public class Instagram{
 						
 						else { //choice == 4
 							System.out.print("\nPlease enter the publishing user: \n");
-							String user_id = input.nextLine();
+							user_id = input.nextLine();
 							System.out.print("\n");
 							SearchForPhotoUser(esql, user_id);
 						}
@@ -381,7 +392,21 @@ public class Instagram{
 					break;
 					
 					case 9: //TagUserToPhoto
-
+						System.out.print("\nEnter the photo ID of the photo you wish to tag a user on:\n");
+						parent_id = Integer.parseInt(in.readLine());
+						System.out.println("\nEnter the user ID of the user you want to tag:\n");
+						user_id = input.nextLine();
+						System.out.print("\n");
+						if (ParentExists(esql, parent_id)) {
+							if (!UserTagExists(esql, parent_id, user_id)) {
+								TagUserToPhoto(esql, parent_id, user_id);
+							} else {
+								System.out.println("User \'" + user_id + "\' is already tagged on this photo. Returning to menu.\n");
+							}
+						} else {
+							System.out.println("\nInvalid photo ID. Returning to menu.\n");
+						}
+						ViewUserTags(esql, parent_id); // FIXME REMOVE
 					break;
 					
 					case 10: //MostPopularUsers 
@@ -541,7 +566,7 @@ public class Instagram{
 				}
 				int photo_tag_id = GetNextPhotoTagId(esql);
 				int changes = esql.executeUpdate("INSERT INTO PhotoTags VALUES(" + parent_id + ", " + photo_tag_id + ", \'" + tag + "\')");
-				// ViewPhotoTags(esql, parent_id); FIXME REMOVE
+				ViewPhotoTags(esql, parent_id); // FIXME REMOVE
 			} else {
 				System.out.println("\nPhoto ID is invalid. Returning to menu.\n");
 			}
@@ -654,9 +679,27 @@ public class Instagram{
 		}						
 	}
 	
-	public static void TagUserToPhoto(Instagram esql){//9
-		//
-		
+	public static void TagUserToPhoto(Instagram esql, int parent_id, String user_id){//9
+		try {
+			ResultSet rs = esql.executeQuery("SELECT user_id FROM UserTags WHERE parent_id = " + parent_id);
+			if (rs.isBeforeFirst()) {
+				while (rs.next()) {
+					System.out.print("in while");
+					if (user_id == rs.getString(1)) {
+						System.out.println("\nUser tag for \'" + user_id + "\' already exists on this photo. Returning to menu.\n");
+						return;
+					}
+				}
+				int user_tag_id = GetNextUserTagId(esql);
+				int changes = esql.executeUpdate("INSERT INTO UserTags VALUES(" + parent_id + ", " + user_tag_id + ", \'" + user_id + "\')");
+				ViewUserTags(esql, parent_id); // FIXME REMOVE
+			} else {
+				System.out.println("\nPhoto ID is invalid. Returning to menu.\n");
+			}
+
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 	
 	public static void MostPopularUsers(Instagram esql){//10
@@ -768,6 +811,66 @@ public class Instagram{
 		return -1;		
 	}	
 
+	//helper function for TagUserToPhoto()
+	public static int GetNextUserTagId(Instagram esql) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT user_tag_id FROM UserTags WHERE user_tag_id = (SELECT MAX(user_tag_id) FROM UserTags)");
+			if(rs.isBeforeFirst()) {
+				rs.next();
+				int user_tag_id = rs.getInt(1) + 1;
+				return user_tag_id;
+			}
+			else {
+				return 1;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return -1;		
+	}
+
+	public static Boolean ParentExists(Instagram esql, int parent_id) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT parent_id FROM Photo WHERE parent_id = " + parent_id);
+			if(rs.isBeforeFirst()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}
+
+	public static Boolean PhotoTagExists(Instagram esql, int parent_id, String tag) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT tag FROM PhotoTags WHERE parent_id = " + parent_id + " AND tag = \'" + tag + "\'");
+			if(rs.isBeforeFirst()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}	
+
+	public static Boolean UserTagExists(Instagram esql, int parent_id, String user_id) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT user_tag_id FROM UserTags WHERE parent_id = " + parent_id + " AND user_id = \'" + user_id + "\'");
+			if(rs.isBeforeFirst()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}
+
 	public static void ViewComments(Instagram esql, int parent_id) { // FIXME REMOVE
 		try {
 			ResultSet rs = esql.executeQuery("SELECT content FROM Comments WHERE parent_id = " + parent_id);
@@ -799,5 +902,22 @@ public class Instagram{
 			System.err.println(e.getMessage());
 		}
 		return;
+	}
+
+	public static void ViewUserTags(Instagram esql, int parent_id) { // FIXME REMOVE
+	try {
+		ResultSet rs = esql.executeQuery("SELECT user_tag_id, user_id FROM UserTags WHERE parent_id = " + parent_id);
+		if(rs.isBeforeFirst()) {
+			while(rs.next()) {
+				System.out.print(rs.getInt(1) + " ");
+				System.out.println(rs.getString(2));
+			}
+		} else {
+			System.out.println("\nruh roh\n");
+		}
+	} catch(Exception e) {
+		System.err.println(e.getMessage());
+	}
+	return;
 	}
 }
