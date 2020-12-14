@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 /**
  * This class defines a simple embedded SQL utility class that is designed to
  * work with PostgreSQL JDBC drivers.
@@ -245,6 +246,66 @@ public class Instagram{
 			int parent_id;
 			
 			boolean keepon = true;
+			boolean login = true;
+			boolean user_id_taken = true;
+			String username;
+			String password;
+			String confirmation;
+			
+			while(login){
+				System.out.println("\nWelcome to Instagram! Create a new account or sign in.\n");
+            	System.out.println("---------");
+            	System.out.println("1. Create account");
+            	System.out.println("2. Sign in");
+            	System.out.println("3. Exit");
+            	switch(readChoice()) {
+            		case 1:
+            			System.out.println("Please enter your new username: ");
+            			username = input.nextLine();
+            			//CHECK IF user_id TAKEN
+            			
+            			if(!UserExists(esql, username)){
+	            			System.out.println("Please enter your new password: ");
+	            			password = input.nextLine();
+	            			System.out.println("password: \'" + password + "\'");
+	            			System.out.println("Confirm password: ");
+	            			//CHECK IF passwords match
+	            			confirmation = input.nextLine();
+	            			System.out.println("confirmation: \'" + confirmation + "\'");
+	            			if(!password.equals(confirmation)){
+	            				System.out.println("Passwords do not match. Please try again.");
+	            			}
+	            			else{
+	            				CreateUser(esql, username, password);
+	            				System.out.println("Account created successfully! Returning to login menu.");
+	            			}
+	            		}
+	            		else{
+	            			System.out.println("Username is taken. Please try again.\n");
+	            		}
+	            	break;
+	            	case 2:
+	            		System.out.println("Please enter username: ");
+	            		username = input.nextLine();
+	            		System.out.println("Please enter password: ");
+	            		password = input.nextLine();
+
+	            		if(CheckValidLogin(esql, username, password)){
+	            			System.out.println("Logged in successfully!\n");
+	            			keepon = true;
+	            			login = false;
+	            		}
+	            	break;
+	            	case 3:
+	            		keepon = false;
+	            		login = false;
+	            	break;
+	            	default:
+	            		System.out.println("\nERROR: Invalid Input.\n"); 
+	            	break;
+            	}
+			}
+
 			while(keepon){
 				System.out.println("MAIN MENU");
 				System.out.println("---------");
@@ -266,6 +327,8 @@ public class Instagram{
 				 */
 				switch (readChoice()){
 					case 1: //UploadPhoto 
+						//System.out.print("\nEnter file name of photo: ");
+						addPhoto(esql, 69, "filename", "title", "caption");
 
 					break;
 					
@@ -512,31 +575,6 @@ public class Instagram{
 		}		
 	}
 
-	public static boolean AlreadyFollows(Instagram esql, String user, String follows) { //helper function to check if user already follows other user
-		try {
-			ResultSet rs = esql.executeQuery("SELECT following_id FROM Followings WHERE follower = \'" + user + "\' AND follows = \'" + follows + "\'");
-			if(rs.isBeforeFirst()) {
-				return true;
-			}
-			return false;
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-		}
-		return false;
-	}
-
-	public static void CheckNumFollower(Instagram esql, String user_id) { //testing helper function to check number of followers
-		try {
-			ResultSet rs = esql.executeQuery("SELECT follow_count FROM Users WHERE user_id = \'" + user_id + "\'");
-			rs.next();
-			int numFollowers = rs.getInt(1);
-			System.out.println("User \'" + user_id + "\' has " + numFollowers + " followers.\n");
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
-
 	public static void FollowUser(Instagram esql, String follower, String follows){
 		try {
 			int following_id = GetNextFollowId(esql);
@@ -576,22 +614,22 @@ public class Instagram{
 		}
 	}
 
-	public static void GetPostInfoFromParent(Instagram esql, int parent_id) {
-		try {
-			ResultSet rs = esql.executeQuery("SELECT title, user_id, dates, views, rating FROM Photo WHERE parent_id = " + parent_id);
-			rs.next();
-			String title = rs.getString(1);
-      		String user_id = rs.getString(2);
-      		String dates = rs.getString(3);
-      		int views = rs.getInt(4);
-      		int rating = rs.getInt(5);
-      		System.out.println("Title: " + title + "\nPosted by: " + user_id + "\nDate: " + dates + "\nTotal views: " + views + "\nRating: " + rating + "\n");
+	// // helper function that gets info to output from the parent (title, user_id, dates, views, rating)
+	// public static void GetPostInfoFromParent(Instagram esql, int parent_id) {
+	// 	try {
+	// 		ResultSet rs = esql.executeQuery("SELECT title, user_id, dates, views, rating FROM Photo WHERE parent_id = " + parent_id);
+	// 		rs.next();
+	// 		String title = rs.getString(1);
+ //      		String user_id = rs.getString(2);
+ //      		String dates = rs.getString(3);
+ //      		int views = rs.getInt(4);
+ //      		int rating = rs.getInt(5);
+ //      		System.out.println("Title: " + title + "\nPosted by: " + user_id + "\nDate: " + dates + "\nTotal views: " + views + "\nRating: " + rating + "\n");
 
-		} catch(Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
+	// 	} catch(Exception e) {
+	// 		System.err.println(e.getMessage());
+	// 	}
+	// }
 	
 	public static void SearchForPhotoTag(Instagram esql, String tag){//7
 		try {
@@ -743,7 +781,54 @@ public class Instagram{
     	}
 	}
 
-	//helper function for FollowUser()
+	//*****************************************
+	//			HELPER FUNCTIONS
+	//*****************************************
+
+	//helper function to check if user already follows other user
+	public static boolean AlreadyFollows(Instagram esql, String user, String follows) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT following_id FROM Followings WHERE follower = \'" + user + "\' AND follows = \'" + follows + "\'");
+			if(rs.isBeforeFirst()) {
+				return true;
+			}
+			return false;
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}
+
+	//testing helper function to check number of followers
+	public static void CheckNumFollower(Instagram esql, String user_id) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT follow_count FROM Users WHERE user_id = \'" + user_id + "\'");
+			rs.next();
+			int numFollowers = rs.getInt(1);
+			System.out.println("User \'" + user_id + "\' has " + numFollowers + " followers.\n");
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	// helper function that gets info to output from the parent (title, user_id, dates, views, rating)
+	public static void GetPostInfoFromParent(Instagram esql, int parent_id) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT title, user_id, dates, views, rating FROM Photo WHERE parent_id = " + parent_id);
+			rs.next();
+			String title = rs.getString(1);
+      		String user_id = rs.getString(2);
+      		String dates = rs.getString(3);
+      		int views = rs.getInt(4);
+      		int rating = rs.getInt(5);
+      		System.out.println("Title: " + title + "\nPosted by: " + user_id + "\nDate: " + dates + "\nTotal views: " + views + "\nRating: " + rating + "\n");
+
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	//helper function for to check if user_id already exists within our User table
 	public static boolean UserExists(Instagram esql, String user_id){
 		try {
 			ResultSet rs = esql.executeQuery("SELECT user_id FROM Users WHERE user_id = \'" + user_id + "\'");
@@ -757,7 +842,7 @@ public class Instagram{
 		return false;
 	}
 
-	//helper function to get FollowUser()
+	//helper function to get the next id for the Followings table
 	public static int GetNextFollowId(Instagram esql) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT following_id FROM Followings WHERE following_id = (SELECT MAX(following_id) FROM Followings)");
@@ -775,7 +860,7 @@ public class Instagram{
 		return -1;
 	}
 
-	//helper function for CommentOnPhoto()
+	//helper function to get the next id for the Comments table
 	public static int GetNextCommentId(Instagram esql) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT comment_id FROM Comments WHERE comment_id = (SELECT MAX(comment_id) FROM Comments)");
@@ -793,7 +878,7 @@ public class Instagram{
 		return -1;		
 	}
 
-	//helper function for TagPhoto()
+	//helper function to get the next id for the PhotoTags table
 	public static int GetNextPhotoTagId(Instagram esql) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT photo_tag_id FROM PhotoTags WHERE photo_tag_id = (SELECT MAX(photo_tag_id) FROM PhotoTags)");
@@ -829,6 +914,7 @@ public class Instagram{
 		return -1;		
 	}
 
+	//helper function to check if parent already exists (parent_id in Photo)
 	public static Boolean ParentExists(Instagram esql, int parent_id) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT parent_id FROM Photo WHERE parent_id = " + parent_id);
@@ -843,6 +929,7 @@ public class Instagram{
 		return false;
 	}
 
+	//helper function to check if photo tag already exists
 	public static Boolean PhotoTagExists(Instagram esql, int parent_id, String tag) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT tag FROM PhotoTags WHERE parent_id = " + parent_id + " AND tag = \'" + tag + "\'");
@@ -857,6 +944,7 @@ public class Instagram{
 		return false;
 	}	
 
+	//helper function to check if user tag already exists
 	public static Boolean UserTagExists(Instagram esql, int parent_id, String user_id) {
 		try {
 			ResultSet rs = esql.executeQuery("SELECT user_tag_id FROM UserTags WHERE parent_id = " + parent_id + " AND user_id = \'" + user_id + "\'");
@@ -871,6 +959,109 @@ public class Instagram{
 		return false;
 	}
 
+	//helper function for login menu: creates new user
+	public static void CreateUser(Instagram esql, String username, String password){
+		try {
+			esql.executeUpdate("INSERT INTO Users VALUES(\'" + username + "\', \'" + password + "\', 0)");	
+			ViewUser(esql, username);
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	//helper function for login menu: checks if user login is correct(username and password match)
+	public static boolean CheckValidLogin(Instagram esql, String username, String password) {
+		try{
+			ResultSet rs = esql.executeQuery("SELECT user_id FROM Users WHERE user_id = \'" + username + "\' AND password = \'" + password + "\'");
+			
+			if(rs.isBeforeFirst()){
+				rs.next();
+				System.out.println(rs.getString(1));
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}
+
+	public static void addPhoto(Instagram esql, int user_id, String filename, String title, String caption){
+    String today = "2020-12-14";
+    try {
+      int photo_id = GetNextPhotoId(esql);
+      
+      //File file = new File(filename);
+      //FileInputStream fis = new FileInputStream(file);
+      Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/clee_DB");
+      //PreparedStatement ps = conn.prepareStatement("INSERT INTO Photos VALUES (?, ?, ?, ?, ?, ?, ?);");
+      System.out.println(con);
+
+      /*
+      ps.setInt(1, photo_id);
+      ps.setInt(2, user_id);
+      ps.setString(3, file.getName());
+      ps.setBinaryStream(4, fis, (int)file.length());
+      ps.setString(5, title);
+      ps.setString(6, caption);
+      ps.setString(7, today);
+      ps.executeUpdate();
+      ps.close();
+      fis.close();
+      initializeStats(esql, photo_id);
+      initUserTags(esql, photo_id);
+      initPhotoTags(esql, photo_id);
+      esql.executeUpdate("UPDATE Photoid \nSET photoidcnt = photoidcnt + 1");
+      System.out.print("\nPhoto uploaded! Your Photo ID is: " + photo_id +"\n");
+*/
+    }catch(Exception e) {
+      System.err.println("\nThe system could not find the file " + filename + ". Make sure the file is stored in the same directory as the java executable.");   
+    } 
+  }//end addPhoto
+
+  //helper function to get the next id for the PhotoTags table
+	public static int GetNextPhotoId(Instagram esql) {
+		try {
+			ResultSet rs = esql.executeQuery("SELECT parent_id FROM Photo WHERE parent_id = (SELECT MAX(parent_id) FROM Photo)");
+			if(rs.isBeforeFirst()) {
+				rs.next();
+				int parent_id = rs.getInt(1) + 1;
+				return parent_id;
+			}
+			else {
+				return 1;
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return -1;		
+	}
+
+
+	//********************************************
+	//		TEST FUNCTIONS (TO DELETE LATER)
+	//********************************************
+
+	//test function to display output for user
+	public static void ViewUser(Instagram esql, String username) { // FIXME REMOVE
+		try {
+			ResultSet rs = esql.executeQuery("SELECT user_id FROM Users WHERE user_id = \'" + username + "\'");
+			if(rs.isBeforeFirst()) {
+				while(rs.next()) {
+					System.out.println(rs.getString(1));
+				}
+			} else {
+				System.out.println("\nruh roh\n");
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+	return;
+	}
+
+	//test function to display output for comments
 	public static void ViewComments(Instagram esql, int parent_id) { // FIXME REMOVE
 		try {
 			ResultSet rs = esql.executeQuery("SELECT content FROM Comments WHERE parent_id = " + parent_id);
@@ -887,6 +1078,7 @@ public class Instagram{
 		return;
 	}
 	
+	//test function to display output for photo tags
 	public static void ViewPhotoTags(Instagram esql, int parent_id) { // FIXME REMOVE
 		try {
 			ResultSet rs = esql.executeQuery("SELECT photo_tag_id, tag FROM PhotoTags WHERE parent_id = " + parent_id);
@@ -904,20 +1096,21 @@ public class Instagram{
 		return;
 	}
 
+	//test function to display output for user tags
 	public static void ViewUserTags(Instagram esql, int parent_id) { // FIXME REMOVE
-	try {
-		ResultSet rs = esql.executeQuery("SELECT user_tag_id, user_id FROM UserTags WHERE parent_id = " + parent_id);
-		if(rs.isBeforeFirst()) {
-			while(rs.next()) {
-				System.out.print(rs.getInt(1) + " ");
-				System.out.println(rs.getString(2));
+		try {
+			ResultSet rs = esql.executeQuery("SELECT user_tag_id, user_id FROM UserTags WHERE parent_id = " + parent_id);
+			if(rs.isBeforeFirst()) {
+				while(rs.next()) {
+					System.out.print(rs.getInt(1) + " ");
+					System.out.println(rs.getString(2));
+				}
+			} else {
+				System.out.println("\nruh roh\n");
 			}
-		} else {
-			System.out.println("\nruh roh\n");
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
 		}
-	} catch(Exception e) {
-		System.err.println(e.getMessage());
-	}
 	return;
 	}
 }
