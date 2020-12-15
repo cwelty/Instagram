@@ -261,65 +261,65 @@ public class Instagram{
 			String user_id;
 			int parent_id;
 			
-			boolean keepon = true;
-			boolean login = false;
+			boolean keepon = true; //initiates main menu
+			boolean login = false; //initiates login menu
 			boolean user_id_taken = true;
 			String username;
 			String password;
 			String confirmation;
 			
 			while(login){
-				System.out.println("\nWelcome to Instagram! Create a new account or sign in.\n");
-            	System.out.println("---------");
-            	System.out.println("1. Create account");
-            	System.out.println("2. Sign in");
-            	System.out.println("3. Exit");
-            	switch(readChoice()) {
-            		case 1:
-            			System.out.println("Please enter your new username: ");
-            			username = input.nextLine();
-            			//CHECK IF user_id TAKEN
-            			
-            			if(!UserExists(esql, username)){
-	            			System.out.println("Please enter your new password: ");
-	            			password = input.nextLine();
-	            			System.out.println("password: \'" + password + "\'");
-	            			System.out.println("Confirm password: ");
-	            			//CHECK IF passwords match
-	            			confirmation = input.nextLine();
-	            			System.out.println("confirmation: \'" + confirmation + "\'");
-	            			if(!password.equals(confirmation)){
-	            				System.out.println("Passwords do not match. Please try again.");
-	            			}
-	            			else{
-	            				CreateUser(esql, username, password);
-	            				System.out.println("Account created successfully! Returning to login menu.");
-	            			}
-	            		}
-	            		else{
-	            			System.out.println("Username is taken. Please try again.\n");
-	            		}
-	            	break;
-	            	case 2:
-	            		System.out.println("Please enter username: ");
-	            		username = input.nextLine();
-	            		System.out.println("Please enter password: ");
-	            		password = input.nextLine();
+				System.out.println("\nWelcome to Instagram! Create a new account or sign in.\n"); // Helps start with user to sign in or create account. 
+				System.out.println("---------");
+				System.out.println("1. Create account");
+				System.out.println("2. Sign in");
+				System.out.println("3. Exit");
+				switch(readChoice()) {
+					case 1:
+						System.out.println("Please enter your new username: ");
+						username = input.nextLine();
+						//CHECK IF user_id TAKEN
 
-	            		if(CheckValidLogin(esql, username, password)){
-	            			System.out.println("Logged in successfully!\n");
-	            			keepon = true;
-	            			login = false;
-	            		}
-	            	break;
-	            	case 3:
-	            		keepon = false;
-	            		login = false;
-	            	break;
-	            	default:
-	            		System.out.println("\nERROR: Invalid Input.\n"); 
-	            	break;
-            	}
+						if(!UserExists(esql, username)){
+							System.out.println("Please enter your new password: ");
+							password = input.nextLine();
+							System.out.println("password: \'" + password + "\'");
+							System.out.println("Confirm password: ");
+							//CHECK IF passwords match
+							confirmation = input.nextLine();
+							System.out.println("confirmation: \'" + confirmation + "\'");
+							if(!password.equals(confirmation)){
+								System.out.println("Passwords do not match. Please try again.");
+							}
+							else{
+								CreateUser(esql, username, password);
+								System.out.println("Account created successfully! Returning to login menu.");
+							}
+						}
+						else{
+							System.out.println("Username is taken. Please try again.\n");
+						}
+					break;
+					case 2:
+						System.out.println("Please enter username: ");
+						username = input.nextLine();
+						System.out.println("Please enter password: ");
+						password = input.nextLine();
+
+						if(CheckValidLogin(esql, username, password)){
+							System.out.println("Logged in successfully!\n");
+							keepon = true;
+							login = false;
+						}
+					break;
+					case 3:
+						keepon = false;
+						login = false;
+					break;
+					default:
+						System.out.println("\nERROR: Invalid Input.\n"); 
+					break;
+				}
 			}
 
 			while(keepon){
@@ -328,7 +328,7 @@ public class Instagram{
 				System.out.println("1. Upload Photo");
 				System.out.println("2. Download Photo");
 				System.out.println("3. Search for User"); // based on titles, tags, ratings
-				System.out.println("4. Follow User"); 
+				System.out.println("4. Follow User");
 				System.out.println("5. Generate News Feed");
 				System.out.println("6. Tag Photo");
 				System.out.println("7. Search for Photos"); // on tags, ratings, dates, or publishing users
@@ -342,7 +342,7 @@ public class Instagram{
 				 * FOLLOW THE SPECIFICATION IN THE PROJECT DESCRIPTION
 				 */
 				switch (readChoice()){
-					case 1: //UploadPhoto 
+					case 1: // UploadPhoto takes file name from user and if file exists gathers other info for new post.  
 						System.out.print("\nEnter file name of photo to upload:\n");
 						String filename = input.nextLine();
 						UploadPhoto(esql, user, filename, input); // CHANGE TO USERNAME LATER
@@ -352,27 +352,27 @@ public class Instagram{
 
 					break;
 					
-					case 3: //SearchForUser
+					case 3: // SearchForUser Searches for a photo based on a photo's title, tags, or ratings
 						System.out.print("\nWould you like to search for User based on\n1) Photo Title\n2) Tags\n3) Ratings\nPlease enter an integer(1-3)\n");
 						value = input.nextLine();
 						int choice = Integer.parseInt(value);
-						if(choice < 1 || choice > 3) {
+						if(choice < 1 || choice > 3) { // Make sure we have a valid choice
 							System.out.print("\nInvalid choice: Returning to menu.\n");
 							break;
 						}
-						else if(choice == 1) {
+						else if(choice == 1) { //search user based on photo's title
 							System.out.print("\nPlease enter the photo title: \n");
 							String title = input.nextLine();
 							System.out.print("\n");
 							SearchForUserTitle(esql, title);
 						}
-						else if(choice == 2) {
+						else if(choice == 2) { //search user based on photo's tag
 							System.out.print("\nPlease enter the tag: \n");
 							tag = input.nextLine();
 							System.out.print("\n");
 							SearchForUserTag(esql, tag);
 						}
-						else { //choice == 3
+						else { //search user based on photo
 							System.out.print("\nPlease enter a rating: \n");
 							value = input.nextLine();
 							int rating = Integer.parseInt(value);
@@ -382,20 +382,19 @@ public class Instagram{
 
 					break;
 					
-					case 4: //FollowUser
+					case 4: // FollowUser allows user signed in to follow another user
 						System.out.print("\nPlease enter the username of the user you'd like to follow:\n");
 						value = input.nextLine();
-						if(UserExists(esql, value)) {
-							if(AlreadyFollows(esql, user, value)) {
+						if(UserExists(esql, value)) { // Helper function checks if user exists in database
+							if(AlreadyFollows(esql, user, value)) { // Helper function to see if user already follows the person
 								System.out.print("\nYou already follow " + value + ". Returning to menu.\n");
 								break;
 							}
-							FollowUser(esql, user, value);
+							FollowUser(esql, user, value); // Function follows the user 
 						}
 						else {
 							System.out.print("The user \"" + value + "\" does not exist. Returning to menu.\n"); 
 						}
-
 					break;
 					
 					case 5: //GenerateNewsFeed
@@ -409,19 +408,19 @@ public class Instagram{
 						System.out.print("\nPlease enter the photo tag you would like to add:\n");
 						tag = input.nextLine();
 
-						if (ParentExists(esql, parent_id)) {
-							if (!PhotoTagExists(esql, parent_id, tag)) {
-								TagPhoto(esql, parent_id, tag);
+						if (ParentExists(esql, parent_id)) { // ParentExists makes sure the photo id or parent_id is valid 
+							if (!PhotoTagExists(esql, parent_id, tag)) { // Checks if the tag already exists on the given post
+								TagPhoto(esql, parent_id, tag); // Adds tag to table for given parent_id
 							} else {
 								System.out.println("Tag \'" + tag + "\' already exists on this photo. Returning to menu.\n");
 							}
 						} else {
 							System.out.println("\nInvalid photo ID. Returning to menu.\n");
 						}
-						 //ViewPhotoTags(esql, parent_id); // FIXME REMOVE
+						 //ViewPhotoTags(esql, parent_id); for testing
 					break;
 					
-					case 7: //SearchForPhotos
+					case 7: // SearchForPhotos searches for photos based on photo tags, ratings, and the date published
 						System.out.print("\nWould you like to search for Photo based on\n1) Tags\n2) Ratings\n3) Date\n4) Publishing User\nPlease enter an integer(1-4)\n");
 						value = input.nextLine();
 						choice = Integer.parseInt(value);
@@ -429,14 +428,14 @@ public class Instagram{
 							System.out.print("\nInvalid choice: Returning to menu.\n");
 							break;
 						}
-						else if(choice == 1) {
+						else if(choice == 1) { // Searches based on tag
 							System.out.print("\nPlease enter the photo tag: \n");
 							tag = input.nextLine();
 							System.out.print("\n");
 							SearchForPhotoTag(esql, tag);
 						}
 						
-						else if(choice == 2) {
+						else if(choice == 2) { // Searches based on rating
 							System.out.print("\nPlease enter a rating: \n");
 							value = input.nextLine();
 							int rating = Integer.parseInt(value);
@@ -444,14 +443,14 @@ public class Instagram{
 							SearchForPhotoRating(esql, rating);
 						}
 						
-						else if(choice == 3) {
-							System.out.print("\nPlease enter a date(mm/dd/yy): \n");
+						else if(choice == 3) { // Searches for photo based on date
+							System.out.print("\nPlease enter a date(MM-dd-yyyy): \n");
 							String dates = input.nextLine();
 							System.out.print("\n");
 							SearchForPhotoDate(esql, dates);
 						}
 						
-						else { //choice == 4
+						else { //choice == 4 Searches for photo based on user who published the photo
 							System.out.print("\nPlease enter the publishing user: \n");
 							user_id = input.nextLine();
 							System.out.print("\n");
@@ -664,20 +663,21 @@ public class Instagram{
 				image = base_info.getBytes(5);
 				System.out.println("\nPhoto title: " + title + "\nPublished by: " + user_id + "\nDate: " + dates);
 			}
-
+			
+			/*
 			JFrame frame = new JFrame("Feed");
 
 			ByteArrayInputStream bis = new ByteArrayInputStream(image);
-        	BufferedImage bImg = ImageIO.read(bis);
-        	ImageIcon imageIcon = new ImageIcon(bImg);
-        	JLabel jLabel = new JLabel(imageIcon, SwingConstants.CENTER);
-        	frame.getContentPane().add(jLabel, BorderLayout.CENTER);
-        	frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-          
-        	frame.pack();
-        	frame.setLocationRelativeTo(null);
-        	frame.setVisible(true);
+			BufferedImage bImg = ImageIO.read(bis);
+			ImageIcon imageIcon = new ImageIcon(bImg);
+			JLabel jLabel = new JLabel(imageIcon, SwingConstants.CENTER);
+			frame.getContentPane().add(jLabel, BorderLayout.CENTER);
+			frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 
+			frame.pack();
+			frame.setLocationRelativeTo(null);
+			frame.setVisible(true);
+			*/
 
 			System.out.println("\nTagged users:");
 
