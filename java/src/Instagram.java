@@ -25,6 +25,22 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import java.io.*;
+import java.text.SimpleDateFormat;  
+import java.util.Date;  
+import java.util.Calendar;
+import java.sql.*;
+import java.io.ByteArrayOutputStream;
+import java.awt.image.BufferedImage;
+import javax.imageio.*;
+import javax.swing.*; 
+import java.awt.*;
+import java.awt.image.*;
+import java.util.ArrayList; 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
 
 /**
  * This class defines a simple embedded SQL utility class that is designed to
@@ -246,7 +262,7 @@ public class Instagram{
 			int parent_id;
 			
 			boolean keepon = true;
-			boolean login = true;
+			boolean login = false;
 			boolean user_id_taken = true;
 			String username;
 			String password;
@@ -327,9 +343,9 @@ public class Instagram{
 				 */
 				switch (readChoice()){
 					case 1: //UploadPhoto 
-						//System.out.print("\nEnter file name of photo: ");
-						addPhoto(esql, 69, "filename", "title", "caption");
-
+						System.out.print("\nEnter file name of photo to upload:\n");
+						String filename = input.nextLine();
+						UploadPhoto(esql, user, filename, input); // CHANGE TO USERNAME LATER
 					break;
 					
 					case 2: //DownloadPhoto
@@ -383,7 +399,7 @@ public class Instagram{
 					break;
 					
 					case 5: //GenerateNewsFeed
-
+						GenerateNewsFeed(esql, user); // CHANGE TO USERNAME
 					break;
 					
 					case 6: //TagPhoto
@@ -469,7 +485,7 @@ public class Instagram{
 						} else {
 							System.out.println("\nInvalid photo ID. Returning to menu.\n");
 						}
-						ViewUserTags(esql, parent_id); // FIXME REMOVE
+						// ViewUserTags(esql, parent_id);
 					break;
 					
 					case 10: //MostPopularUsers 
@@ -516,8 +532,50 @@ public class Instagram{
 		return input;
 	}//end readChoice3
 
-	public static void UploadPhoto(Instagram esql){//1
-		
+	public static void UploadPhoto(Instagram esql, String user_id, String filename, Scanner input){//1
+		try {
+
+	    	// BufferedImage bImage = ImageIO.read(new File("/home/clee/cs179/Instagram/sample_photo.jpg"));
+      		// 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      		// 		ImageIO.write(bImage, "jpg", bos );
+      		// 		byte [] data = bos.toByteArray();
+      		// 		System.out.println(data);
+	      
+	      	File file = new File("/home/clee/cs179/Instagram/" + filename + ".jpg");
+	     	FileInputStream fis = new FileInputStream(file);
+	      	Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/clee_DB");
+
+	      	System.out.print("\nEnter the title of the photo:\n");
+	      	String title = input.nextLine();
+
+	      	int parent_id = GetNextPhotoId(esql);
+
+	      	
+
+	      	Date current_date = Calendar.getInstance().getTime();
+	      	String timestamp = current_date.toString();
+	      	// System.out.println(timestamp);
+	      	SimpleDateFormat format = new SimpleDateFormat("MM-dd-yyyy");
+	      	String date = format.format(current_date);
+
+	      	PreparedStatement ps = con.prepareStatement("INSERT INTO Photo VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
+		    ps.setInt(1, parent_id);
+		    ps.setString(2, user_id);
+		    ps.setString(3, title);
+		    ps.setInt(4, 0);
+		    ps.setString(5, date);
+		    ps.setString(6, timestamp);
+		    ps.setInt(7, 0);
+		    ps.setBinaryStream(8, fis, (int)file.length());
+		    
+		    ps.executeUpdate();
+		    ps.close();
+		    fis.close();
+
+		    System.out.println("\nSuccess! Your photo has been uploaded :)\n ");
+		} catch (Exception e){
+			System.err.println(e.getMessage());
+		}
 	}
 	
 	public static void DownloadPhoto(Instagram esql){//2
@@ -587,9 +645,90 @@ public class Instagram{
 			System.err.println(e.getMessage());
 		}
 	}
+
+	public static void GeneratePhotoInfo(Instagram esql, String parent_id){ // HELPER FOR GENERATE NEWS FEED
+		try{
+			ResultSet base_info = esql.executeQuery("SELECT title, user_id, dates, rating, image FROM Photo WHERE parent_id = \'" + parent_id + "\'");
+			ResultSet photo_tags = esql.executeQuery("SELECT tag FROM PhotoTags WHERE parent_id = \'" + parent_id + "\'");
+			ResultSet tagged_users = esql.executeQuery("SELECT user_id FROM UserTags WHERE parent_id = \'" + parent_id + "\'");
+			ResultSet comments = esql.executeQuery("SELECT user_id, content FROM Comments WHERE parent_id = \'" + parent_id + "\'");
+			byte[] image = new byte[0];
+
+
+			if (base_info.isBeforeFirst()){
+				base_info.next();
+				String title = base_info.getString(1);
+				String user_id = base_info.getString(2);
+				String dates = base_info.getString(3);
+				String rating = base_info.getString(4);
+				image = base_info.getBytes(5);
+				System.out.println("\nPhoto title: " + title + "\nPublished by: " + user_id + "\nDate: " + dates);
+			}
+
+			JFrame frame = new JFrame("Feed");
+
+			ByteArrayInputStream bis = new ByteArrayInputStream(image);
+        	BufferedImage bImg = ImageIO.read(bis);
+        	ImageIcon imageIcon = new ImageIcon(bImg);
+        	JLabel jLabel = new JLabel(imageIcon, SwingConstants.CENTER);
+        	frame.getContentPane().add(jLabel, BorderLayout.CENTER);
+        	frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+          
+        	frame.pack();
+        	frame.setLocationRelativeTo(null);
+        	frame.setVisible(true);
+
+
+			System.out.println("\nTagged users:");
+
+			if (tagged_users.isBeforeFirst()){
+				while(tagged_users.next()){
+					String user = tagged_users.getString(1);
+					System.out.println(user + " ");
+				}
+			}
+
+			System.out.println("\nPhoto tags:");
+
+			if (photo_tags.isBeforeFirst()){
+				while(photo_tags.next()){
+					String tag = photo_tags.getString(1);
+					System.out.println("#" + tag + " ");
+				}
+			}
+
+			System.out.println("\nComments:");
+			System.out.println("----------------------------------------------------------------------");
+
+			if (comments.isBeforeFirst()){
+				while(comments.next()){
+					String user_id = comments.getString(1);
+					String content = comments.getString(2);
+					System.out.println("User: " + user_id + "\n");
+					System.out.println("-" + content);
+					System.out.println("----------------------------------------------------------------------\n");
+				}
+			}
+
+		}catch (Exception e){
+			System.err.println(e.getMessage());
+		}
+	}
 	
-	public static void GenerateNewsFeed(Instagram esql) throws Exception{//5
-		
+	public static void GenerateNewsFeed(Instagram esql, String user_id) throws Exception{//5
+		try{
+			ResultSet rs = esql.executeQuery("SELECT parent_id FROM Photo WHERE user_id IN (SELECT follows from Followings WHERE follower = \'" + user_id + "\')ORDER BY rating DESC;");
+			if (rs.isBeforeFirst()){
+				while(rs.next()){
+					String parent_id = rs.getString(1);
+					GeneratePhotoInfo(esql, parent_id);
+				}
+			}else{
+				System.out.println("No photos found. Returning to menu.\n");
+			}
+		}catch (Exception e){
+			System.err.println(e.getMessage());
+		}
 	}
 	
 	public static void TagPhoto(Instagram esql, int parent_id, String tag){//6
@@ -613,23 +752,6 @@ public class Instagram{
 			System.err.println(e.getMessage());
 		}
 	}
-
-	// // helper function that gets info to output from the parent (title, user_id, dates, views, rating)
-	// public static void GetPostInfoFromParent(Instagram esql, int parent_id) {
-	// 	try {
-	// 		ResultSet rs = esql.executeQuery("SELECT title, user_id, dates, views, rating FROM Photo WHERE parent_id = " + parent_id);
-	// 		rs.next();
-	// 		String title = rs.getString(1);
- //      		String user_id = rs.getString(2);
- //      		String dates = rs.getString(3);
- //      		int views = rs.getInt(4);
- //      		int rating = rs.getInt(5);
- //      		System.out.println("Title: " + title + "\nPosted by: " + user_id + "\nDate: " + dates + "\nTotal views: " + views + "\nRating: " + rating + "\n");
-
-	// 	} catch(Exception e) {
-	// 		System.err.println(e.getMessage());
-	// 	}
-	// }
 	
 	public static void SearchForPhotoTag(Instagram esql, String tag){//7
 		try {
@@ -730,7 +852,7 @@ public class Instagram{
 				}
 				int user_tag_id = GetNextUserTagId(esql);
 				int changes = esql.executeUpdate("INSERT INTO UserTags VALUES(" + parent_id + ", " + user_tag_id + ", \'" + user_id + "\')");
-				ViewUserTags(esql, parent_id); // FIXME REMOVE
+				// ViewUserTags(esql, parent_id); // FIXME REMOVE
 			} else {
 				System.out.println("\nPhoto ID is invalid. Returning to menu.\n");
 			}
@@ -988,39 +1110,6 @@ public class Instagram{
 		return false;
 	}
 
-	public static void addPhoto(Instagram esql, int user_id, String filename, String title, String caption){
-    String today = "2020-12-14";
-    try {
-      int photo_id = GetNextPhotoId(esql);
-      
-      //File file = new File(filename);
-      //FileInputStream fis = new FileInputStream(file);
-      Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/clee_DB");
-      //PreparedStatement ps = conn.prepareStatement("INSERT INTO Photos VALUES (?, ?, ?, ?, ?, ?, ?);");
-      System.out.println(con);
-
-      /*
-      ps.setInt(1, photo_id);
-      ps.setInt(2, user_id);
-      ps.setString(3, file.getName());
-      ps.setBinaryStream(4, fis, (int)file.length());
-      ps.setString(5, title);
-      ps.setString(6, caption);
-      ps.setString(7, today);
-      ps.executeUpdate();
-      ps.close();
-      fis.close();
-      initializeStats(esql, photo_id);
-      initUserTags(esql, photo_id);
-      initPhotoTags(esql, photo_id);
-      esql.executeUpdate("UPDATE Photoid \nSET photoidcnt = photoidcnt + 1");
-      System.out.print("\nPhoto uploaded! Your Photo ID is: " + photo_id +"\n");
-*/
-    }catch(Exception e) {
-      System.err.println("\nThe system could not find the file " + filename + ". Make sure the file is stored in the same directory as the java executable.");   
-    } 
-  }//end addPhoto
-
   //helper function to get the next id for the PhotoTags table
 	public static int GetNextPhotoId(Instagram esql) {
 		try {
@@ -1041,7 +1130,7 @@ public class Instagram{
 
 
 	//********************************************
-	//		TEST FUNCTIONS (TO DELETE LATER)
+	//		TEST FUNCTIONS
 	//********************************************
 
 	//test function to display output for user

@@ -16,15 +16,15 @@ CREATE TABLE Photo (
     title VARCHAR(64) NOT NULL,
     rating NUMERIC(5) NOT NULL,
     dates VARCHAR(20) NOT NULL,
-    time_stamp NUMERIC(4) NOT NULL,
-    --image NUMERIC(4) NOT NULL,
+    time_stamp VARCHAR(666) NOT NULL,
     views NUMERIC(4) NOT NULL,
+    image bytea,
     PRIMARY KEY(parent_id)
 );
 
 INSERT INTO Photo VALUES(1, 'carson', 'poopy', 1, '12/12/2020', 1230, 1);
 INSERT INTO Photo VALUES(2, 'preet', 'peepy', 2, '12/13/2020', 1130, 0);
-
+INSERT INTO Photo VALUES(3, 'preet', 'peepy2', 2, '12/14/2020', 1140, 0);
 
 CREATE TABLE Comments (
     parent_id NUMERIC(4) NOT NULL,
@@ -33,6 +33,9 @@ CREATE TABLE Comments (
     content VARCHAR(1000) NOT NULL,
     PRIMARY KEY(comment_id)
 );
+
+INSERT INTO Comments VALUES(2, 1, 'clee', 'Nice peepy');
+INSERT INTO Comments VALUES(2, 2, 'carson', 'Haha good one @clee');
 
 CREATE TABLE Users (
     user_id VARCHAR(64) NOT NULL,
@@ -76,6 +79,8 @@ CREATE TABLE PhotoTags (
 
 INSERT INTO PhotoTags VALUES(1, 1, 'smelly');
 INSERT INTO PhotoTags VALUES(2, 2, 'wowie');
+INSERT INTO PhotoTags VALUES(2, 3, 'nice');
+INSERT INTO PhotoTags VALUES(2, 4, 'swag');
 
 
 CREATE TABLE UserTags (
@@ -86,7 +91,9 @@ CREATE TABLE UserTags (
 );
 
 INSERT INTO UserTags VALUES(1, 1, 'carson');
-INSERT INTO UserTags VALUES(2, 2, 'preet');
+INSERT INTO UserTags VALUES(2, 2, 'david');
+INSERT INTO UserTags VALUES(2, 3, 'clee');
+INSERT INTO UserTags VALUES(2, 4, 'carson');
 
 
 CREATE TABLE Followings (
@@ -98,6 +105,7 @@ CREATE TABLE Followings (
 
 INSERT INTO Followings VALUES(1, 'carson', 'clee');
 INSERT INTO Followings VALUES(2, 'preet', 'david');
+INSERT INTO Followings VALUES(3, 'clee', 'preet');
 
 -- Relations
 
