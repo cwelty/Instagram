@@ -22,7 +22,7 @@ CREATE TABLE Photo (
     PRIMARY KEY(parent_id)
 );
 
-INSERT INTO Photo VALUES(1, 'carson', 'poopy', 1, '12/12/2020', 1230, 1);
+INSERT INTO Photo VALUES(1, 'clee', 'poopy', 1, '12/12/2020', 1230, 1); --no image values, so these can't be downloaded
 INSERT INTO Photo VALUES(2, 'preet', 'peepy', 2, '12/13/2020', 1130, 0);
 INSERT INTO Photo VALUES(3, 'preet', 'peepy2', 2, '12/14/2020', 1140, 0);
 
@@ -34,8 +34,8 @@ CREATE TABLE Comments (
     PRIMARY KEY(comment_id)
 );
 
-INSERT INTO Comments VALUES(2, 1, 'clee', 'Nice peepy');
-INSERT INTO Comments VALUES(2, 2, 'carson', 'Haha good one @clee');
+INSERT INTO Comments VALUES(2, 1, 'cwelty', 'Nice peepy');
+INSERT INTO Comments VALUES(2, 2, 'clee', 'Haha good one @cwelty');
 
 CREATE TABLE Users (
     user_id VARCHAR(64) NOT NULL,
@@ -44,10 +44,10 @@ CREATE TABLE Users (
     PRIMARY KEY(user_id)
 );
 
-INSERT INTO Users VALUES('carson', '222', 0);
+INSERT INTO Users VALUES('cwelty', '222', 1);
 INSERT INTO Users VALUES('preet', '444', 0);
 INSERT INTO Users VALUES('david', '777', 1);
-INSERT INTO Users VALUES('clee', '888', 1);
+INSERT INTO Users VALUES('clee', '888', 0);
 
 
 CREATE TABLE Rating (
@@ -58,7 +58,7 @@ CREATE TABLE Rating (
     PRIMARY KEY(rating_id)
 );
 
-INSERT INTO Rating VALUES(1, 1, 'carson', 'like');
+INSERT INTO Rating VALUES(1, 1, 'clee', 'like');
 INSERT INTO Rating VALUES(2, 2, 'preet', 'like');
 
 
@@ -90,10 +90,10 @@ CREATE TABLE UserTags (
     PRIMARY KEY(user_tag_id)
 );
 
-INSERT INTO UserTags VALUES(1, 1, 'carson');
+INSERT INTO UserTags VALUES(1, 1, 'clee');
 INSERT INTO UserTags VALUES(2, 2, 'david');
-INSERT INTO UserTags VALUES(2, 3, 'clee');
-INSERT INTO UserTags VALUES(2, 4, 'carson');
+INSERT INTO UserTags VALUES(2, 3, 'cwelty');
+INSERT INTO UserTags VALUES(2, 4, 'clee');
 
 
 CREATE TABLE Followings (
@@ -103,9 +103,9 @@ CREATE TABLE Followings (
     PRIMARY KEY(following_id)
 );
 
-INSERT INTO Followings VALUES(1, 'carson', 'clee');
+INSERT INTO Followings VALUES(1, 'clee', 'cwelty');
 INSERT INTO Followings VALUES(2, 'preet', 'david');
-INSERT INTO Followings VALUES(3, 'clee', 'preet');
+INSERT INTO Followings VALUES(3, 'cwelty', 'preet');
 
 -- Relations
 

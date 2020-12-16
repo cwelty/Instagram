@@ -349,7 +349,20 @@ public class Instagram{
 					break;
 					
 					case 2: //DownloadPhoto
-
+						System.out.print("\nEnter Photo ID:\n");
+						value = input.nextLine();
+						parent_id = Integer.parseInt(value);
+						//CHECK IF PARENT ID IS VALID
+						if(ParentExists(esql, parent_id)) {
+							System.out.print("\nSave file as:\n");
+							String savefile = input.nextLine();
+							System.out.println("SAVING FILE: " + savefile);
+							DownloadPhoto(esql, parent_id, savefile);
+							System.out.print("\nPhoto downloaded successfully! Returning to menu.\n");
+						}
+						else {
+							System.out.print("Invalid Photo ID. Returning to menu.\n");
+						}
 					break;
 					
 					case 3: // SearchForUser Searches for a photo based on a photo's title, tags, or ratings
@@ -540,9 +553,11 @@ public class Instagram{
       		// 		byte [] data = bos.toByteArray();
       		// 		System.out.println(data);
 	      
-	      	File file = new File("/home/clee/cs179/Instagram/" + filename + ".jpg");
+	      	//File file = new File("/home/clee/cs179/Instagram/" + filename + ".jpg");
+	      	File file = new File("/mnt/c/Users/carso/Documents/cs179G_project/Instagram/" + filename + ".jpg");
 	     	FileInputStream fis = new FileInputStream(file);
-	      	Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/clee_DB");
+	      	//Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/clee_DB");
+	      	Connection con = DriverManager.getConnection("jdbc:postgresql://localhost:9998/cwelty_DB");
 
 	      	System.out.print("\nEnter the title of the photo:\n");
 	      	String title = input.nextLine();
@@ -577,8 +592,32 @@ public class Instagram{
 		}
 	}
 	
-	public static void DownloadPhoto(Instagram esql){//2
-		
+	public static void DownloadPhoto(Instagram esql, int parent_id, String savefile){//2
+		try {
+			ResultSet rs = esql.executeQuery("SELECT image FROM Photo WHERE parent_id = " + parent_id + ";");
+			if(rs.isBeforeFirst()) {
+				String jpg = ".jpg";
+        		while(rs.next()){
+        			System.out.println("ENTER WHILE");
+          			byte[] image = rs.getBytes(1);
+          		    //String imageStr = rs.getString(1);
+          		    //System.out.println("imageStr: " + imageStr);
+          			ByteArrayInputStream bis = new ByteArrayInputStream(image);
+          		    System.out.println("BYTE ARRAY INPUT STREAM");
+          			System.out.println("EXITING 1");
+          			BufferedImage bImg = ImageIO.read(bis);
+          			System.out.println("buffer image: " + bImg);
+          			ImageIO.write(bImg, jpg, new File(savefile));
+          			System.out.println("EXITING WHILE"); 
+        		}
+			}
+			else {
+				System.out.println("Photo ID " + parent_id + " is invalid.");
+			}
+			rs.close();
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}	
 	}
 	
 	public static void SearchForUserTitle(Instagram esql, String title){//3
@@ -645,7 +684,7 @@ public class Instagram{
 		}
 	}
 
-	public static void GeneratePhotoInfo(Instagram esql, String parent_id){ // HELPER FOR GENERATE NEWS FEED
+	public static void GeneratePhotoInfo(Instagram esql, int parent_id){ // HELPER FOR GENERATE NEWS FEED
 		try{
 			ResultSet base_info = esql.executeQuery("SELECT title, user_id, dates, rating, image FROM Photo WHERE parent_id = \'" + parent_id + "\'");
 			ResultSet photo_tags = esql.executeQuery("SELECT tag FROM PhotoTags WHERE parent_id = \'" + parent_id + "\'");
@@ -661,6 +700,7 @@ public class Instagram{
 				String dates = base_info.getString(3);
 				String rating = base_info.getString(4);
 				image = base_info.getBytes(5);
+				System.out.println("getBytes: " + image);
 				System.out.println("\nPhoto title: " + title + "\nPublished by: " + user_id + "\nDate: " + dates);
 			}
 			
@@ -720,8 +760,11 @@ public class Instagram{
 			ResultSet rs = esql.executeQuery("SELECT parent_id FROM Photo WHERE user_id IN (SELECT follows from Followings WHERE follower = \'" + user_id + "\')ORDER BY rating DESC;");
 			if (rs.isBeforeFirst()){
 				while(rs.next()){
-					String parent_id = rs.getString(1);
+					int parent_id = rs.getInt(1);
 					GeneratePhotoInfo(esql, parent_id);
+
+					//adding view to photo once generated
+					addView(esql, parent_id);
 				}
 			}else{
 				System.out.println("No photos found. Returning to menu.\n");
@@ -887,12 +930,15 @@ public class Instagram{
       		if(rs.isBeforeFirst()) {
       			System.out.println("\nMost popular photos: \n");
       			while(rs.next()) {
-      				//int parent_id = rs.getInt(1); CHECK LATER FOR ADDING COMMENTS/TAGS
+      				int parent_id = rs.getInt(1); //CHECK LATER FOR ADDING COMMENTS/TAGS
       				String title = rs.getString(2);
       				String user_id = rs.getString(3);
       				String dates = rs.getString(4);
       				int views = rs.getInt(5);
       				System.out.println("Title: " + title + "\nPosted by: " + user_id + "\nDate: " + dates + "\nTotal views: " + views + "\n");
+
+      				//incrementing views here -> COULD CHANGE
+      				addView(esql, parent_id);
       			}
       			System.out.println("\n");
         	}else {
@@ -1126,6 +1172,15 @@ public class Instagram{
 			System.err.println(e.getMessage());
 		}
 		return -1;		
+	}
+
+	//helper function to increment the number of views for a photo
+	public static void addView(Instagram esql, int parent_id) {
+		try {
+			esql.executeUpdate("UPDATE Photo\nSET views = views + 1\nWHERE parent_id =  " + parent_id + ";");
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
 	}
 
 
