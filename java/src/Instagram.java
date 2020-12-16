@@ -606,7 +606,7 @@ public class Instagram{
           		    System.out.println("BYTE ARRAY INPUT STREAM");
           			System.out.println("EXITING 1");
           			BufferedImage bImg = ImageIO.read(bis);
-          			System.out.println("buffer image: " + bImg);
+          			//System.out.println("buffer image: " +);
           			ImageIO.write(bImg, jpg, new File(savefile));
           			System.out.println("EXITING WHILE"); 
         		}
@@ -704,7 +704,7 @@ public class Instagram{
 				System.out.println("\nPhoto title: " + title + "\nPublished by: " + user_id + "\nDate: " + dates);
 			}
 			
-			/*
+			
 			JFrame frame = new JFrame("Feed");
 
 			ByteArrayInputStream bis = new ByteArrayInputStream(image);
@@ -717,7 +717,7 @@ public class Instagram{
 			frame.pack();
 			frame.setLocationRelativeTo(null);
 			frame.setVisible(true);
-			*/
+			
 
 			System.out.println("\nTagged users:");
 
